@@ -138,3 +138,50 @@ Thumbs.db
 *.env.local
 .env.*.local
 config.local.json
+
+# Sensitive data
+.env
+.env.*.env
+credentials.json
+secrets.json
+private_key*
+*.pem
+*.key
+*.cert
+oauth_token*
+
+# Database
+*.sqlite
+*.db
+*.sqlite3
+
+# Uploads and temporary files
+/uploads/
+/tmp/
+/temp/
+/cache/
+
+# Node modules
+node_modules/
+package-lock.json
+yarn.lock
+
+# Logs and debugging
+logs/
+*.log
+*.pid
+*.seed
+debug.log
+
+# IDE Extended
+.DS_Store
+Thumbs.db
+.env.prod
+.env.staging
+
+# AWS, API keys, tokens
+.aws/
+aws_access_key_id
+aws_secret_access_key
+*.key
+*.pem
