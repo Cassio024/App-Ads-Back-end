@@ -8,6 +8,9 @@ class Location(BaseModel):
     coordinates: List[float]
 
 class Foco(Document):
+    id_visita: str
+    tipo_criadouro: str
+    acao_tomada: str
     id_local_celular: str
     latitude: float
     longitude: float
