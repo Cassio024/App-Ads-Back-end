@@ -1,13 +1,22 @@
 from beanie import Document
-from typing import Dict, Any
+from typing import Dict, Any, List
+from pydantic import BaseModel
+
+class Location(BaseModel):
+    type: str = "Point"
+    # Ordem: [longitude, latitude]
+    coordinates: List[float]
 
 class Foco(Document):
     id_local_celular: str
     latitude: float
     longitude: float
-    # O MongoDB aceita dicionários nativamente, perfeito para dados dinâmicos!
+    location: Location
     dados_coletados: Dict[str, Any]
     timestamp: str
 
     class Settings:
-        name = "focos"  # Nome da coleção no MongoDB
+        name = "focos"
+        indexes = [
+            [("location", "2dsphere")]
+        ]
