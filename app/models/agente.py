@@ -4,6 +4,7 @@ from pydantic import Field
 class Agente(Document):
     nome: str
     email: str
+    setor_responsavel: str
     senha_hash: str
     ativo: bool = True
 
