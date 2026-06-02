@@ -10,9 +10,8 @@ async def init_db():
     
     # Define o nome do banco de dados (será criado automaticamente ao salvar o primeiro dado)
     database = client.app_vigiar_db
-    
     # Inicializa o Beanie com os modelos que criamos
     await init_beanie(
-        database=database,
+        database=database, 
         document_models=[Agente, Foco]
-    )
+ )

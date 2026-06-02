@@ -1,13 +1,13 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from typing import List
 from beanie.operators import In
 from app.models.foco import Foco
 
 router = APIRouter()
 
-# Reparou que aqui usamos apenas "/focos"? 
-# O prefixo "/sync" será definido no main.py para manter a rota original.
-@router.post("/focos")
+# Rota trazida da branch TimoteoBackEnd
+# O prefixo "/api/focos" definido no main.py fará esta rota ser acessada em: POST /api/focos
+@router.post("")
 async def sincronizar_focos(focos_recebidos: List[Foco]):
     # 1. Lista todos os IDs que o celular enviou na rajada
     ids_recebidos = [foco.id_local_celular for foco in focos_recebidos]
@@ -36,3 +36,27 @@ async def sincronizar_focos(focos_recebidos: List[Foco]):
         "ignorados_ja_existentes": len(ids_ja_guardados),
         "ids_seguros_na_nuvem": ids_sincronizados
     }
+
+
+# Rota trazida da branch main
+# Acessível em: GET /api/focos/proximos
+@router.get("/proximos", response_model=List[Foco])
+async def get_focos_proximos(
+    lat: float = Query(...),
+    long: float = Query(...),
+    raio: int = Query(5000)
+):
+    # Busca utilizando o índice 2dsphere
+    focos = await Foco.find({
+        "location": {
+            "$nearSphere": {
+                "$geometry": {
+                    "type": "Point",
+                    "coordinates": [long, lat]
+                },
+                "$maxDistance": raio
+            }
+        }
+    }).to_list()
+    
+    return focos
