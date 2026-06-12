@@ -1,12 +1,17 @@
 # main.py
 import os
 import uvicorn
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.db.database import init_db
 from app.models.agente import Agente
+from contextlib import asynccontextmanager
 from app.api import focos
+from app.db.database import init_db
+from app.api import auth, agendamento, focos
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
