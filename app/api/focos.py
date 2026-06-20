@@ -4,7 +4,7 @@ from beanie.operators import In
 from app.models.foco import Foco
 
 # 1. Importando o Schema que acabamos de criar!
-from app.api.schemas.foco import FocoSyncSchema 
+from app.api.schemas.focos import FocoSyncSchema
 
 router = APIRouter()
 
