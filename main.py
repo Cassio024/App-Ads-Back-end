@@ -1,52 +1,42 @@
-# main.py
 import os
 import uvicorn
 from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv())
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+
+# Importações dos seus módulos
 from app.db.database import init_db
+from app.api import auth, agendamento, focos, sync
 from app.models.agente import Agente
-from contextlib import asynccontextmanager
-from app.api import focos
-from app.db.database import init_db
-from app.api import auth, agendamento, focos
+
+load_dotenv(find_dotenv())
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Iniciando conexão com o MongoDB...")
-    await init_db()  # Isso criará o banco, as collections e os índices automaticamente
+    await init_db() 
     print("Conectado com sucesso!")
     yield
     print("Desligando API...")
 
 app = FastAPI(title="API APP-VIGIAR", lifespan=lifespan)
 
-# CONFIGURAÇÃO DO CORS: Essencial para o seu PWA conseguir fazer requisições à API
+# CONFIGURAÇÃO DO CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Em produção, podes substituir pelo link do seu front no Render
+    allow_origins=["*"], 
     allow_credentials=True,
-    allow_methods=["*"],  # Permite todos os métodos (GET, POST, PUT, DELETE, etc.)
-    allow_headers=["*"],  # Permite todos os cabeçalhos de metadados
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Incluindo as rotas de focos
+# REGISTRO DE ROTAS (Aqui está o segredo!)
+app.include_router(auth.router)           # Rotas de login/registro (prefixo /auth já está no arquivo)
+app.include_router(sync.router)           # Rotas de sincronização (prefixo /sync já está no arquivo)
 app.include_router(focos.router, prefix="/api/focos", tags=["Focos"])
+app.include_router(agendamento.router, prefix="/api/agendamentos", tags=["Agendamentos"])
 
 @app.get("/")
 def read_root():
     return {"status": "API rodando com MongoDB e Beanie!"}
-
-# Rota de teste do Agente
-@app.post("/agentes", tags=["Agentes"])
-async def criar_agente(agente: Agente):
-    await agente.insert()
-    return {"status": "Agente criado com sucesso!", "dados_salvos": agente}
-
-# INICIALIZAÇÃO DINÂMICA: Obrigatório para o Render não dar erro de Port Scan
-if __name__ == "__main__":
-    # O Render injeta automaticamente a porta correta na variável de ambiente PORT
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
