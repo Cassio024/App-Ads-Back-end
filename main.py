@@ -31,11 +31,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# REGISTRO DE ROTAS (Aqui está o segredo!)
-app.include_router(auth.router)           # Rotas de login/registro (prefixo /auth já está no arquivo)
-app.include_router(sync.router)           # Rotas de sincronização (prefixo /sync já está no arquivo)
+# REGISTRO DE ROTAS
+app.include_router(auth.router)           
+app.include_router(sync.router)           
 app.include_router(focos.router, prefix="/api/focos", tags=["Focos"])
-app.include_router(agendamento.router, prefix="/api/agendamento", tags=["Agendamentos"])
+
+# CORREÇÃO: Removido o prefixo extra para não conflitar com o router interno!
+app.include_router(agendamento.router) 
 
 @app.get("/")
 def read_root():
