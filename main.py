@@ -31,15 +31,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# REGISTRO DE ROTAS
-app.include_router(auth.router)           
-app.include_router(sync.router)           
-app.include_router(agendamento.router) # Sem prefixo aqui (já está em app/api/agendamento.py)
-
-# O de focos precisa do prefixo aqui de volta para evitar o erro de path vazio!
-# Se o seu frontend antigo chamava "/api/focos", você pode usar prefix="/api/focos".
-# Se preferir o padrão limpo igual aos outros, use prefix="/focos".
-app.include_router(focos.router, prefix="/focos", tags=["Focos"]) 
+# REGISTRO DE ROTAS (Aqui está o segredo!)
+app.include_router(auth.router)           # Rotas de login/registro (prefixo /auth já está no arquivo)
+app.include_router(sync.router)           # Rotas de sincronização (prefixo /sync já está no arquivo)
+app.include_router(focos.router, prefix="/api/focos", tags=["Focos"])
+app.include_router(agendamento.router, prefix="/api/agendamento", tags=["Agendamentos"])
 
 @app.get("/")
 def read_root():
