@@ -1,4 +1,5 @@
 import os
+import certifi # <-- 1. Importação do pacote de certificados adicionada
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
 from app.core.config import settings
@@ -16,7 +17,8 @@ async def init_db():
             "Certifique-se de definir 'DATABASE_URL' ou 'MONGO_URI' no seu arquivo .env ou no Render."
         )
 
-    client = AsyncIOMotorClient(database_url)
+    # <-- 2. Adicionado o parâmetro tlsCAFile apontando para o certifi
+    client = AsyncIOMotorClient(database_url, tlsCAFile=certifi.where())
     
     try:
         database = client.get_default_database()
