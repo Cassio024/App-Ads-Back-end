@@ -32,11 +32,14 @@ app.add_middleware(
 )
 
 # REGISTRO DE ROTAS
-# Deixamos o FastAPI usar apenas os prefixos que já estão definidos dentro de cada arquivo!
 app.include_router(auth.router)           
 app.include_router(sync.router)           
-app.include_router(focos.router)          
-app.include_router(agendamento.router)    
+app.include_router(agendamento.router) # Sem prefixo aqui (já está em app/api/agendamento.py)
+
+# O de focos precisa do prefixo aqui de volta para evitar o erro de path vazio!
+# Se o seu frontend antigo chamava "/api/focos", você pode usar prefix="/api/focos".
+# Se preferir o padrão limpo igual aos outros, use prefix="/focos".
+app.include_router(focos.router, prefix="/focos", tags=["Focos"]) 
 
 @app.get("/")
 def read_root():
