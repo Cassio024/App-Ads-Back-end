@@ -1,9 +1,16 @@
 from fastapi import APIRouter, HTTPException, status
+from pydantic import BaseModel
+from typing import Optional
 from app.api.schemas.auth import LoginSchema, RegisterSchema
 from app.models.usuario import Usuario
 import bcrypt
 
 router = APIRouter(prefix="/auth", tags=["Autenticação"])
+
+# Novo Schema para a validação da atualização de perfil
+class UpdateProfileSchema(BaseModel):
+    nome: str
+    foto_base64: Optional[str] = None
 
 @router.post("/register")
 async def register(payload: RegisterSchema):
@@ -60,3 +67,39 @@ async def login(payload: LoginSchema):
             "foto_base64": usuario.foto_base64
         }
     }
+
+# ==========================================
+# NOVAS ROTAS DE CONFIGURAÇÃO DE PERFIL
+# ==========================================
+
+@router.patch("/update/{matricula}")
+async def update_profile(matricula: str, payload: UpdateProfileSchema):
+    # Busca o usuário no banco
+    usuario = await Usuario.find_one(Usuario.matricula == matricula)
+    if not usuario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuário não encontrado."
+        )
+    
+    # Atualiza o nome e, se fornecida, a foto
+    usuario.nome = payload.nome
+    if payload.foto_base64 and payload.foto_base64.strip() != "":
+        usuario.foto_base64 = payload.foto_base64
+        
+    await usuario.save()
+    return {"message": "Perfil atualizado com sucesso!"}
+
+@router.delete("/delete/{matricula}")
+async def delete_profile(matricula: str):
+    # Busca o usuário no banco
+    usuario = await Usuario.find_one(Usuario.matricula == matricula)
+    if not usuario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuário não encontrado."
+        )
+    
+    # Exclui o registro permanentemente
+    await usuario.delete()
+    return {"message": "Conta excluída com sucesso!"}
